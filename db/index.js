@@ -26,6 +26,16 @@ class DB {
             "SELECT role.id, role.title, role.salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id"
         );
     }
+    async findRoleforEmployee(){
+
+        const [roles] = await connection.promise().query(
+            "SELECT role.id, role.title FROM role"
+        );
+        return roles;
+        // return this.connection.promise().query(
+        //     "SELECT role.id, role.title FROM role"
+        // );
+    }
 
 };
 module.exports = new DB(connection);

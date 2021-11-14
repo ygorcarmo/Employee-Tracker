@@ -2,8 +2,17 @@ var inquirer = require('inquirer');
 const db = require('./db');
 require("console.table");
 
+// let [choices] = db.findAllRoles();
+async function roles(){
 
+    // console.log( await db.findRoleforEmployee());
+    // await db.findRoleforEmployee().then(([data]) => { return data}) 
+    let dbContent = await db.findRoleforEmployee();
+    console.log(dbContent[i])
+    
+}
 
+// roles();
 function init(){
     getItGoing();
 }
@@ -17,12 +26,13 @@ const firstQuestion = [{
 }];
 
 
+
 function getItGoing(){
     inquirer.prompt(firstQuestion).then(res =>{
         switch(res.initial){
             case 'View All Employees': findAllEmployee();
             break;
-            case 'Add Employee': console.log("add employee");
+            case 'Add Employee': inquirer.prompt(employeeQuestion);
             break;
             case 'Update Employee Role': console.log("update employee role");
             break;
@@ -54,3 +64,34 @@ function findAllRoles(){
 }
 
 init();
+const employeeQuestion = [
+    {
+        name:"employeeFirstName",
+        message:"What is the employee's first name?",
+        type:"input"
+    },
+    {
+        name:"employeeLastName",
+        message:"What is the employee's last name?",
+        type:"input"
+    },
+    {
+        name:"employeeRole",
+        message:"What is the employee's role?",
+        type:"list",
+        choices: async () => {
+            let roles = [];
+            let dbContent = await db.findRoleforEmployee();
+            for( i = 0; i < dbContent.length; i++ ){
+                roles[i] = dbContent[i].title;
+            }
+            return roles;}
+    },
+    {
+        name:"employeeManager",
+        message:"What is the employee's role?",
+        type:"list",
+        // choices:['None',findAllEmployee()]
+    },
+    
+];

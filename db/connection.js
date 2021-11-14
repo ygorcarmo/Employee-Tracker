@@ -12,7 +12,6 @@ const connection = mysql.createConnection(
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME
     },
-    console.log(`Connected to the movies_db database.`)
   );
 
   module.exports = connection;
