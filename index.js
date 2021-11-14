@@ -26,7 +26,7 @@ function getItGoing(){
             break;
             case 'Update Employee Role': console.log("update employee role");
             break;
-            case 'View All Roles': console.log("VIew all roles");
+            case 'View All Roles': findAllRoles();
             break;
             case 'Add Role': console.log('add role');
             break;
@@ -35,6 +35,7 @@ function getItGoing(){
             case 'Add department': console.log('add department');
             break;
             case 'Quit': console.log('bye');
+            process.exit();
             break;
         }
     });
@@ -47,6 +48,9 @@ function findAllDepartments(){
 }
 function findAllEmployee(){
     db.findAllEmployee().then(([data]) => { console.table(data); getItGoing(); }) 
+}
+function findAllRoles(){
+    db.findAllRoles().then(([data]) => { console.table(data); getItGoing(); }) 
 }
 
 init();

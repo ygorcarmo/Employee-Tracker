@@ -21,6 +21,11 @@ class DB {
             
         );
     }
+    findAllRoles(){
+        return this.connection.promise().query(
+            "SELECT role.id, role.title, role.salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id"
+        );
+    }
 
 };
 module.exports = new DB(connection);
