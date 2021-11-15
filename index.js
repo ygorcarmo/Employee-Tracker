@@ -21,7 +21,7 @@ const firstQuestion = [{
     name: "initial",
     type: "list",
     message: "What would you like to do?",
-    choices: ["View All Employees", "Add Employee", "Update Employee Role", "Delete Employee", "View All Roles", 
+    choices: ["View All Employees", "View Employees by Manager", "View Employees by Department", "Add Employee", "Update Employee Role", "Update Employee Manager","Delete Employee", "View All Roles", 
     "Add Role", "View All Departments", "Add Department",new inquirer.Separator(), "Quit",new inquirer.Separator()],
 }];
 
@@ -32,9 +32,15 @@ function getItGoing(){
         switch(res.initial){
             case 'View All Employees': findAllEmployee();
             break;
+            case 'View Employees by Manager': findAllEmployeebyManager();
+            break;
+            case 'View Employees by Department': findAllEmployeebyDepartment();
+            break;
             case 'Add Employee': addEmployee();
             break;
             case 'Update Employee Role': updateEmployee();
+            break;
+            case 'Update Employee Manager': updateEmployeeManager();
             break;
             case 'Delete Employee': deleteEmployee();
             break;
@@ -64,8 +70,56 @@ function findAllEmployee(){
 function findAllRoles(){
     db.findAllRoles().then(([data]) => { console.table(data); getItGoing(); }) 
 }
+async function findAllEmployeebyManager(){
+    await inquirer.prompt(employeeByManager).then((res) =>{
+        managerInput = res.employeeManager;
+    })
+    let fullName = managerInput.split(" ");
+    let managerFirstName = fullName[0];
+    let managerLastName = fullName[1];            
+    newManager = await db.managerID(managerFirstName,managerLastName);
+    db.findAllEmployeebyManager(newManager[0].id).then(([data]) => { console.table(data); getItGoing(); })  
+}
+async function findAllEmployeebyDepartment(){
+    await inquirer.prompt(employeebyDepartment).then((res) =>{
+        roleDepartment = res.roleDepartment;
+    })
+    departmentID = await db.findDepartmentID(roleDepartment); 
+    db.findAllEmployeebyDepartment(departmentID[0].id).then(([data]) => { console.table(data); getItGoing(); })
+
+}
 
 init();
+const employeebyDepartment = [
+    {
+        name:"roleDepartment",
+        message:"Choose a Department!",
+        type:"list",
+        choices: async () => {
+            let department = [];
+            let dbContent = await db.findDepartmentforRole();
+            for( i = 0; i < dbContent.length; i++ ){
+                department[i] = dbContent[i].name;
+            }
+            return department;}
+    }
+];
+const employeeByManager= [
+    {
+        name:"employeeManager",
+        message:"Choose a manager!",
+        type:"list",
+        choices:async() => {
+            let managers = [];
+            let dbContent = await db.findManagerforEmployee();
+            for( i = 0; i < dbContent.length; i++ ){
+                managers[i] = dbContent[i].first_name+" "+dbContent[i].last_name;
+            }
+            return managers;
+        } 
+    }
+
+];
 const employeeQuestion = [
     {
         name:"employeeFirstName",
@@ -91,7 +145,7 @@ const employeeQuestion = [
     },
     {
         name:"employeeManager",
-        message:"What is the employee's role?",
+        message:"What is the employee's manager?",
         type:"list",
         choices:async() => {
             let managers = ["None"];
@@ -183,6 +237,34 @@ const deleteEmployeeQuestion = [
         }
     }
 ];
+const newEmployeeManager = [
+    {
+        name:"employeeName",
+        message:"Which employee's manager do you want to update?",
+        type:"list",
+        choices: async () => {
+            let roles = [];
+            let dbContent = await db.findAllEmployeeName();
+            for( i = 0; i < dbContent.length; i++ ){
+                roles[i] = dbContent[i].first_name+" "+dbContent[i].last_name;
+            }
+            return roles;
+        }
+    },
+    {
+        name:"employeeManager",
+        message:"What is the employee's manager?",
+        type:"list",
+        choices:async() => {
+            let managers = ["None"];
+            let dbContent = await db.findManagerforEmployee();
+            for( i = 0; i < dbContent.length; i++ ){
+                managers[i+1] = dbContent[i].first_name+" "+dbContent[i].last_name;
+            }
+            return managers;
+        } 
+    }
+];
 
 async function addEmployee(){
     let newManager;
@@ -244,7 +326,7 @@ async function updateEmployee(){
     db.updateEmployeeRole(roleChosen[0].id,employee[0].id);
     getItGoing();
 
-}
+};
 
 async function deleteEmployee(){
     await inquirer.prompt(deleteEmployeeQuestion).then((res) => {
@@ -255,4 +337,29 @@ async function deleteEmployee(){
     employee = await db.findAllEmployeeID(employeeFirstName,employeeLastName);
     db.deleteEmployees(employee[0].id);
     getItGoing();
-}
+};
+
+async function updateEmployeeManager(){
+    await inquirer.prompt(newEmployeeManager).then((res) => {
+            fullName = res.employeeName.split(" ");
+            employeeFirstName = fullName[0];
+            employeeLastName = fullName[1];
+            managerInput = res.employeeManager;        
+    })
+    if(managerInput === "None"){
+        newManager = null;
+    }else{
+            let fullName = managerInput.split(" ");
+            let managerFirstName = fullName[0];
+            let managerLastName = fullName[1];            
+            newManager = await db.managerID(managerFirstName,managerLastName);         
+    }
+    employee = await db.findAllEmployeeID(employeeFirstName,employeeLastName);
+    
+    if(newManager === null){
+        db.updateEmployeeManager(newManager, employee[0].id);
+    }else{
+        db.updateEmployeeManager(newManager[0].id, employee[0].id);
+    }
+    getItGoing();
+};

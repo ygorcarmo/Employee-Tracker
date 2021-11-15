@@ -21,6 +21,25 @@ class DB {
             
         );
     }
+    findAllEmployeebyDepartment(departmentID){
+        return this.connection.promise().query(
+            `SELECT e.id, e.first_name, e.last_name, role.title, role.salary, IFNULL(CONCAT(m.first_name , " " ,  m.last_name), "No Manager") 
+            manager FROM employee e LEFT JOIN role ON e.role_id = role.id 
+            INNER JOIN department ON role.department_id = department.id 
+            LEFT JOIN employee m ON m.id = e.manager_id
+            WHERE department.id = ${departmentID};`
+            
+        );
+    }
+    async findAllEmployeebyManager(managerID){
+        return await this.connection.promise().query(
+            `SELECT e.id, e.first_name, e.last_name, role.title, 
+            department.name AS department, role.salary
+            FROM employee e LEFT JOIN role ON e.role_id = role.id 
+            INNER JOIN department ON role.department_id = department.id
+            WHERE manager_id = ${managerID};`
+        );
+    }
     async findAllEmployeeName(){
         const [names] = await connection.promise().query(
             "SELECT first_name, last_name FROM employee"
@@ -32,11 +51,17 @@ class DB {
             `UPDATE employee SET role_id = "${roleID}" WHERE employee.id="${employeeID}"`
         );
     }
+    async updateEmployeeManager(managerID, employeeID){
+        return await this.connection.promise().query(
+            `UPDATE employee SET manager_id = ${managerID} WHERE employee.id="${employeeID}"`
+        );
+    }
     async findAllRoles(){
         return await this.connection.promise().query(
             "SELECT role.id, role.title, role.salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id"
         );
     }
+
     async findAllEmployeeID(employeeFirstName, employeeLastName){
         const [id] = await this.connection.promise().query(`SELECT id FROM employee WHERE first_name = "${employeeFirstName}" and last_name= "${employeeLastName}"`);
         return id;
