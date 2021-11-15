@@ -22,7 +22,7 @@ const firstQuestion = [{
     type: "list",
     message: "What would you like to do?",
     choices: ["View All Employees", "View Employees by Manager", "View Employees by Department", "Add Employee", "Update Employee Role", "Update Employee Manager","Delete Employee", "View All Roles", 
-    "Add Role", "View All Departments", "Add Department",new inquirer.Separator(), "Quit",new inquirer.Separator()],
+    "Add Role", "View All Departments", "Delete Department", "Add Department",new inquirer.Separator(), "Quit",new inquirer.Separator()],
 }];
 
 
@@ -51,6 +51,8 @@ function getItGoing(){
             case 'View All Departments': findAllDepartments();
             break;
             case 'Add Department': addDepartment();
+            break;
+            case 'Delete Department': deleteDepartment();
             break;
             case 'Quit': console.log('bye');
             process.exit();
@@ -88,8 +90,30 @@ async function findAllEmployeebyDepartment(){
     db.findAllEmployeebyDepartment(departmentID[0].id).then(([data]) => { console.table(data); getItGoing(); })
 
 }
+async function deleteDepartment(){
+    await inquirer.prompt(choiceDeleteDepartment).then((res) =>{
+        roleDepartment = res.roleDepartment;
+    })
+    departmentID = await db.findDepartmentID(roleDepartment);
+    db.deleteDepartment(departmentID[0].id);
+    getItGoing(); 
+};
 
 init();
+const choiceDeleteDepartment = [
+    {
+        name:"roleDepartment",
+        message:"Choose a Department!",
+        type:"list",
+        choices: async () => {
+            let department = [];
+            let dbContent = await db.findDepartmentforRole();
+            for( i = 0; i < dbContent.length; i++ ){
+                department[i] = dbContent[i].name;
+            }
+            return department;}
+    }
+];
 const employeebyDepartment = [
     {
         name:"roleDepartment",
