@@ -34,7 +34,7 @@ function getItGoing(){
             break;
             case 'Add Employee': addEmployee();
             break;
-            case 'Update Employee Role': console.log("update employee role");
+            case 'Update Employee Role': updateEmployee();
             break;
             case 'View All Roles': findAllRoles();
             break;
@@ -137,6 +137,35 @@ const roleQuestion = [
 
 ];
 
+const updateEmployeeQuestion = [
+    {
+        name:"employeeName",
+        message:"Which employee's role do you want to update?",
+        type:"list",
+        choices: async () => {
+            let roles = [];
+            let dbContent = await db.findAllEmployeeName();
+            for( i = 0; i < dbContent.length; i++ ){
+                roles[i] = dbContent[i].first_name+" "+dbContent[i].last_name;
+            }
+            return roles;
+        }
+    },
+    {
+        name:"employeeNewRole",
+        message:"Which role do you want to assing the selected employee?",
+        type:"list",
+        choices: async () => {
+            let roles = [];
+            let dbContent = await db.findRoleforEmployee();
+            for( i = 0; i < dbContent.length; i++ ){
+                roles[i] = dbContent[i].title;
+            }
+            return roles;
+        }
+    }    
+]; 
+
 async function addEmployee(){
     let newManager;
 
@@ -184,3 +213,17 @@ async function addRole(){
     getItGoing(); 
 
 };
+
+async function updateEmployee(){
+    await inquirer.prompt(updateEmployeeQuestion).then((res) =>{
+        fullName = res.employeeName.split(" ");
+        employeeFirstName = fullName[0];
+        employeeLastName = fullName[1];    
+        newRole =  res.employeeNewRole;
+    });
+    let roleChosen = await db.roleID(newRole);
+    employee = await db.findAllEmployeeID(employeeFirstName,employeeLastName);
+    db.updateEmployeeRole(roleChosen[0].id,employee[0].id);
+    getItGoing();
+
+}
