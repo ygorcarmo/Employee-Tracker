@@ -47,6 +47,9 @@ class DB {
         );
         return roles;
     }
+    async deleteEmployees(employeeID){
+        return await this.connection.promise().query(`DELETE FROM employee WHERE id="${employeeID}"`);
+    }
 
     async findManagerforEmployee(){
         const [managers] = await connection.promise().query("SELECT id, first_name, last_name FROM employee WHERE manager_id IS NULL");

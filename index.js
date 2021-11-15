@@ -21,7 +21,7 @@ const firstQuestion = [{
     name: "initial",
     type: "list",
     message: "What would you like to do?",
-    choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", 
+    choices: ["View All Employees", "Add Employee", "Update Employee Role", "Delete Employee", "View All Roles", 
     "Add Role", "View All Departments", "Add Department",new inquirer.Separator(), "Quit",new inquirer.Separator()],
 }];
 
@@ -35,6 +35,8 @@ function getItGoing(){
             case 'Add Employee': addEmployee();
             break;
             case 'Update Employee Role': updateEmployee();
+            break;
+            case 'Delete Employee': deleteEmployee();
             break;
             case 'View All Roles': findAllRoles();
             break;
@@ -166,6 +168,22 @@ const updateEmployeeQuestion = [
     }    
 ]; 
 
+const deleteEmployeeQuestion = [
+    {
+        name:"employeeName",
+        message:"Which employee do you want to delete?",
+        type:"list",
+        choices: async () => {
+            let roles = [];
+            let dbContent = await db.findAllEmployeeName();
+            for( i = 0; i < dbContent.length; i++ ){
+                roles[i] = dbContent[i].first_name+" "+dbContent[i].last_name;
+            }
+            return roles;
+        }
+    }
+];
+
 async function addEmployee(){
     let newManager;
 
@@ -226,4 +244,15 @@ async function updateEmployee(){
     db.updateEmployeeRole(roleChosen[0].id,employee[0].id);
     getItGoing();
 
+}
+
+async function deleteEmployee(){
+    await inquirer.prompt(deleteEmployeeQuestion).then((res) => {
+        fullName = res.employeeName.split(" ");
+        employeeFirstName = fullName[0];
+        employeeLastName = fullName[1];
+    })
+    employee = await db.findAllEmployeeID(employeeFirstName,employeeLastName);
+    db.deleteEmployees(employee[0].id);
+    getItGoing();
 }
