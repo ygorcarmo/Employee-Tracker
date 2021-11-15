@@ -21,6 +21,15 @@ class DB {
             
         );
     }
+    async findSumofDepartmet(departmentID){
+        const [total] = await connection.promise().query(
+            `SELECT SUM(role.salary) AS Total FROM employee e 
+            LEFT JOIN role ON e.role_id = role.id
+            INNER JOIN department ON role.department_id = department.id
+            WHERE department.id = ${departmentID};`
+            );
+        return total;
+    }
     findAllEmployeebyDepartment(departmentID){
         return this.connection.promise().query(
             `SELECT e.id, e.first_name, e.last_name, role.title, role.salary, IFNULL(CONCAT(m.first_name , " " ,  m.last_name), "No Manager") 

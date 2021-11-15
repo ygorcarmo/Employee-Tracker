@@ -22,7 +22,7 @@ const firstQuestion = [{
     type: "list",
     message: "What would you like to do?",
     choices: ["View All Employees", "View Employees by Manager", "View Employees by Department", "Add Employee", "Update Employee Role", "Update Employee Manager","Delete Employee", "View All Roles", 
-    "Add Role", "Delete Role","View All Departments", "Delete Department", "Add Department",new inquirer.Separator(), "Quit",new inquirer.Separator()],
+    "Add Role", "Delete Role","View All Departments", "View the total utilized budget of a department", "Delete Department", "Add Department",new inquirer.Separator(), "Quit",new inquirer.Separator()],
 }];
 
 
@@ -51,6 +51,8 @@ function getItGoing(){
             case 'Delete Role': deleteRole();
             break;
             case 'View All Departments': findAllDepartments();
+            break;
+            case 'View the total utilized budget of a department': sumofDepartment();
             break;
             case 'Add Department': addDepartment();
             break;
@@ -99,6 +101,14 @@ async function deleteDepartment(){
     departmentID = await db.findDepartmentID(roleDepartment);
     db.deleteDepartment(departmentID[0].id);
     getItGoing(); 
+};
+async function sumofDepartment(){
+    await inquirer.prompt(choiceDeleteDepartment).then((res) =>{
+        roleDepartment = res.roleDepartment;
+    })
+    departmentID = await db.findDepartmentID(roleDepartment);
+    db.findSumofDepartmet(departmentID[0].id).then(([data]) => { console.table(data); getItGoing(); });
+    
 };
 async function deleteRole(){
     await inquirer.prompt(choiceDeleteRole).then((res) =>{
