@@ -20,7 +20,7 @@ Make sure you do a npm install after coping/cloning the code, and create a .env 
 
 ### Video
 
-[Going throgh code video]().
+[Going throgh code video](https://drive.google.com/file/d/1_X2RGaXAF_LNHNrtBgelfB_eoyX0OwJD/view?usp=sharing).
 
 ### License & copyright
 Licensed under the [MIT License](LICENSE).
